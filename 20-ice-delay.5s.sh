@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 
 URL="https://iceportal.de/api1/rs/tripInfo/trip"
 
@@ -10,10 +10,30 @@ if [ $(echo $output | wc -c) -gt 1 ]; then
   arrival_ms=$(($arrival_ms / 1000))
   arrival=$(date -d "@$arrival_ms" "+%H:%M")
   next_stop=$(echo $output | jq --raw-output ".trip.stops[] | select(.info.passed == false) | .station.name" | head -n 1)
-
+  
   echo "$arrival $delay"
   echo "---"
-  echo "Nächster Halt: $next_stop"
+
+  stops=()
+  delays=()
+  arrivals_ms=()
+  mapfile -t stops < <(echo $output | jq -r ".trip.stops[] | select(.info.passed == false) | .station.name")
+
+  delay=()
+  mapfile -t delays < <(echo $output | jq --raw-output ".trip.stops[] | select(.info.passed == false) | .timetable.arrivalDelay") 
+  mapfile -t arrivals_ms < <(echo $output | jq --raw-output ".trip.stops[] | select(.info.passed == false) | .timetable.scheduledArrivalTime")
+  
+
+  COUNTER=0
+  for stop in "${stops[@]}"; do
+    stop_arrival_ms=${arrivals_ms[COUNTER]}
+    stop_arrival_ms=$(($stop_arrival_ms / 1000))
+    stop_arrival=$(date -d "@$stop_arrival_ms" "+%H:%M")
+    stop_delay=${delays[COUNTER]}
+
+    echo "$stop_arrival $stop_delay - $stop"
+    let COUNTER++
+  done
 else
   echo "NIT"
 fi
