@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-iwgetid | grep "OEBB" > /dev/null 
+nmcli connection show --active | grep "OEBB" > /dev/null 
 if  [ $? -eq 0 ]; 
 then
   URL="https://railnet.oebb.at/assets/modules/fis/combined.json"
@@ -24,5 +24,5 @@ then
     echo "---"
   fi
 else
-	echo "---"
+  echo "---"
 fi
