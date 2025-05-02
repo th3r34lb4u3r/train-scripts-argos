@@ -1,5 +1,5 @@
 #!/bin/bash
-iwgetid | grep "WIFIonICE" > /dev/null 
+nmcli connection show --active | grep "WIFIonICE" > /dev/null 
 if  [ $? -eq 0 ]; 
 then
   URL="https://iceportal.de/api1/rs/tripInfo/trip"
